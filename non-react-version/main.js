@@ -11,6 +11,7 @@
     model,                              // Our character
     neck,                               // Reference to the neck bone in the skeleton
     waist,                               // Reference to the waist bone in the skeleton
+    // leftArm,
     possibleAnims,                      // Animations found in our file
     mixer,                              // THREE.js animations mixer
     idle,                               // Idle, the default state our character returns to
@@ -153,6 +154,9 @@
           if (o.isBone && o.name === 'mixamorigSpine') { 
             waist = o;
           }
+          // if(o.isBone && o.name === 'mixamorigLeftArm') {
+          //   leftArm = o;
+          // }
         });
 
         
@@ -164,6 +168,18 @@
         // ##### create a new AnimationMixer ##### 
         // an AnimationMixer is a player for animations on a particular object in the scene
         mixer = new THREE.AnimationMixer(model);
+        let clips = fileAnimations.filter(val => val.name !== 'idle'); // animations not called 'idle' 
+        possibleAnims = clips.map(val => {
+          let clip = THREE.AnimationClip.findByName(clips, val.name);
+          // remove the neck and the waist from inside the animation,
+          // so that the mouse follow works
+          clip.tracks.splice(3, 3);
+          clip.tracks.splice(9, 3);
+          clip = mixer.clipAction(clip);
+          return clip;
+         }
+        );
+
         let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'idle');
         // remove the neck and the waist from inside the animation,
         // splice the tracks array to remove 3,4,5 and 12,13,14.
@@ -172,6 +188,10 @@
         idleAnim.tracks.splice(3, 3);
         // neck
         idleAnim.tracks.splice(9, 3);
+        // console.log(idleAnim.tracks)
+        // arm test
+        // idleAnim.tracks.splice(15, 3);
+        
         idle = mixer.clipAction(idleAnim);
         idle.play();
       },
@@ -220,12 +240,77 @@
     return needResize; // boolean
   }
 
+  // ##### Event Listeners #####
+  window.addEventListener('click', e => raycast(e));
+  window.addEventListener('touchend', e => raycast(e, true));
+
+
+  /**
+   * making a link from the mouse to the model (raycasting)
+   * if they overlap then play an animation (playOnClick)
+   */
+  function raycast(e, touch = false) {
+    let mouse = {};
+    if (touch) {
+      mouse.x = 2 * (e.changedTouches[0].clientX / window.innerWidth) - 1;
+      mouse.y = 1 - 2 * (e.changedTouches[0].clientY / window.innerHeight);
+    } else {
+      mouse.x = 2 * (e.clientX / window.innerWidth) - 1;
+      mouse.y = 1 - 2 * (e.clientY / window.innerHeight);
+    }
+    // update the picking ray with the camera and mouse position
+    raycaster.setFromCamera(mouse, camera);
+
+    // calculate objects intersecting the picking ray
+    let intersects = raycaster.intersectObjects(scene.children, true);
+
+    if (intersects[0]) {
+      let object = intersects[0].object;
+
+      if (object.name === 'stacy') {
+
+        if (!currentlyAnimating) {
+          currentlyAnimating = true;
+          playOnClick();
+        }
+      }
+    }
+  }
+
+  // Get a random animation, and play it 
+  // A random number between 0 and the length of the possibleAnims array,
+  // then we call another function called playModifierAnimation. 
+  
+  function playOnClick() {
+    let anim = Math.floor(Math.random() * possibleAnims.length) + 0;
+    playModifierAnimation(idle, 0.25, possibleAnims[anim], 0.25);
+  }
+
+  // takes in idle (we’re moving from idle),
+  // the speed to blend from idle to a new animation (possibleAnims[anim]),
+  // and the last argument is the speed to blend from the animation back to idle.
+  // Fades from idle, plays an animation and once it’s completed, fades back to idle, allowing another click on the model.
+  function playModifierAnimation(from, fSpeed, to, tSpeed) {
+    // to animation is the animation that’s about to play next
+    to.setLoop(THREE.LoopOnce); // play once
+    to.reset();
+    to.play();
+    from.crossFadeTo(to, fSpeed, true); // fade from (idle) to the new animation using our first speed (fSpeed, aka from speed)
+    
+    setTimeout(function() { // timeout function
+      from.enabled = true; // we turn the from animation (idle) back to true, 
+      to.crossFadeTo(from, tSpeed, true); // we cross fade back to idle,
+      currentlyAnimating = false; // then we toggle currentlyAnimating back to false (allowing another click on model)
+    }, to._clip.duration * 1000 - ((tSpeed + fSpeed) * 1000)); // The time of the setTimeout is calculated by combining our animations length (* 1000 as this is in seconds instead of milliseconds), and removing the speed it took to fade to and from that animation (also set in seconds, so * 1000 again)
+  }
+
   document.addEventListener('mousemove', function(e) {
     var mousecoords = getMousePos(e);
     // console.log('mousecoords: ', mousecoords)
     if (neck && waist) {
       moveJoint(mousecoords, neck, 50); // move neck with 50deg limit
-      moveJoint(mousecoords, waist, 30); // move waist with 30deg limit 
+      moveJoint(mousecoords, waist, 30); // move waist with 30deg limit
+      // moveJoint(mousecoords, leftArm, 70); // TEST move leftArm with 70deg limit 
     }
   });
   
