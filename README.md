@@ -9,9 +9,12 @@ After seeing online (here at codrops)[https://tympanus.net/codrops/2019/10/14/ho
 * [] - Play around with the paramaters to ensure I actually know what is going on.
 * [] - Setup the same animation setup in (React)[https://reactjs.org/]
 
+### Tech used:
+* Three.js
+* (Adobe Mixamo)[https://www.mixamo.com/]
+
 <hr>
 From create React App...
-
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

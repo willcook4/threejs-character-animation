@@ -26,8 +26,10 @@
     raycaster = new THREE.Raycaster(),  // Used to detect the click on our character
     loaderAnim = document.getElementById('js-loader');
 
-  const MODEL_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy_lightweight.glb';
-  const TEXTURE_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy.jpg'
+  // const MODEL_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy_lightweight.glb';
+  const MODEL_PATH = './models/stacy_lightweight.glb'
+  // const TEXTURE_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy.jpg'
+  const TEXTURE_PATH = './models/stacy.jpg'
 
   init();
 
