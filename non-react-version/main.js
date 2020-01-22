@@ -14,7 +14,13 @@
     possibleAnims,                      // Animations found in our file
     mixer,                              // THREE.js animations mixer
     idle,                               // Idle, the default state our character returns to
-    clock = new THREE.Clock(),          // Used for anims, which run to a clock instead of frame rate 
+    clock = new THREE.Clock(),          // Used for anims, which run to a clock instead of frame rate
+    /**
+     * The update takes our clock and updates it to that clock. 
+     * This is so that any animations don’t slow down if the frame rate slows down.
+     * Running an animation to a frame rate, it is then tied to the frames to determine
+     * how fast or slow it runs, that’s not what we want.
+     */
     currentlyAnimating = false,         // Used to check whether characters neck is being used in another anim
     raycaster = new THREE.Raycaster(),  // Used to detect the click on our character
     loaderAnim = document.getElementById('js-loader');
@@ -143,7 +149,14 @@
         model.scale.set(7, 7, 7); // Set the models initial scale to 7x default
         model.position.y = -11; // put the models feet on the ground
         scene.add(model); // add the model to the scene
-        loaderAnim.remove()
+        loaderAnim.remove();
+
+        // ##### create a new AnimationMixer ##### 
+        // an AnimationMixer is a player for animations on a particular object in the scene
+        mixer = new THREE.AnimationMixer(model);
+        let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'idle');
+        idle = mixer.clipAction(idleAnim);
+        idle.play();
       },
       // called while loading model
       function ( xhr ) {
@@ -159,6 +172,10 @@
 
   // Three.js relies on is an update function, which runs every frame
   function update() {
+    if (mixer) {
+      mixer.update(clock.getDelta()); // see note at the definition of clock
+    }
+
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
