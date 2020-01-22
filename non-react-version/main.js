@@ -138,10 +138,20 @@
         let fileAnimations = gltf.animations;
 
         model.traverse(o => {
+          // if (o.isBone) {
+          //   console.log(o.name);
+          // }
           if (o.isMesh) {
             o.castShadow = true;
             o.receiveShadow = true;
             o.material = stacy_mtl
+          }
+          // Reference the neck and waist bones
+          if (o.isBone && o.name === 'mixamorigNeck') { 
+            neck = o;
+          }
+          if (o.isBone && o.name === 'mixamorigSpine') { 
+            waist = o;
           }
         });
 
@@ -155,12 +165,19 @@
         // an AnimationMixer is a player for animations on a particular object in the scene
         mixer = new THREE.AnimationMixer(model);
         let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'idle');
+        // remove the neck and the waist from inside the animation,
+        // splice the tracks array to remove 3,4,5 and 12,13,14.
+        // once I splice 3,4,5 then the neck becomes 9,10,11.
+        // spine (waist)
+        idleAnim.tracks.splice(3, 3);
+        // neck
+        idleAnim.tracks.splice(9, 3);
         idle = mixer.clipAction(idleAnim);
         idle.play();
       },
       // called while loading model
       function ( xhr ) {
-        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        console.log( `Model is ${( xhr.loaded / xhr.total * 100 )}% loaded`);
       },
       // on error
       function(err) {
@@ -203,4 +220,98 @@
     return needResize; // boolean
   }
 
+  document.addEventListener('mousemove', function(e) {
+    var mousecoords = getMousePos(e);
+    // console.log('mousecoords: ', mousecoords)
+    if (neck && waist) {
+      moveJoint(mousecoords, neck, 50); // move neck with 50deg limit
+      moveJoint(mousecoords, waist, 30); // move waist with 30deg limit 
+    }
+  });
+  
+  function getMousePos(e) {
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  // current mouse position, the joint we want to move, the limit (in degrees) that the joint is allowed to rotate
+  function moveJoint(mouse, joint, degreeLimit) {
+    let degrees = getMouseDegrees(mouse.x, mouse.y, degreeLimit);
+    joint.rotation.y = THREE.Math.degToRad(degrees.x);
+    joint.rotation.x = THREE.Math.degToRad(degrees.y);
+  }
+
+  /**
+   * getMouseDegrees does this: 
+   * It checks the top half of the screen, 
+   * the bottom half of the screen, 
+   * the left half of the screen 
+   * and the right half of the screen. 
+   * 
+   * It determines where the mouse is on the screen in a percentage 
+   * between the middle and each edge of the screen.
+   * 
+   * For instance, if the mouse is half way between the middle of the 
+   * screen and the right edge. The function determines that right = 50%, 
+   * 
+   * if the mouse is a quarter of the way UP from the center, 
+   * the function determines that up = 25%.
+   * 
+   * Once the function has these percentages, 
+   * it returns the percentage of the degreelimit.
+   * 
+   * So the function can determine your mouse is 75% right and 50% up,
+   * and return 75% of the degree limit on the x axis and 50% of the 
+   * degree limit on the y axis. Same for left and right.
+   */
+  function getMouseDegrees(x, y, degreeLimit) {
+    let dx = 0,
+        dy = 0,
+        xdiff,
+        xPercentage,
+        ydiff,
+        yPercentage;
+  
+    let w = {
+      x: window.innerWidth,
+      y: window.innerHeight
+    };
+  
+    // ### Left (Rotates neck left between 0 and -degreeLimit) ###
+    // 1. If cursor is in the left half of screen
+    if (x <= w.x / 2) {
+      // 2. Get the difference between middle of screen and cursor position
+      xdiff = w.x / 2 - x;  
+      // 3. Find the percentage of that difference (percentage toward edge of screen)
+      xPercentage = (xdiff / (w.x / 2)) * 100;
+      // 4. Convert that to a percentage of the maximum rotation we allow for the neck
+      dx = ((degreeLimit * xPercentage) / 100) * -1;
+    }
+    
+    // ### Right (Rotates neck right between 0 and degreeLimit) ###
+    if (x >= w.x / 2) {
+      xdiff = x - w.x / 2;
+      xPercentage = (xdiff / (w.x / 2)) * 100;
+      dx = (degreeLimit * xPercentage) / 100;
+    }
+    
+    // ### Up (Rotates neck up between 0 and -degreeLimit) ###
+    if (y <= w.y / 2) {
+      ydiff = w.y / 2 - y;
+      yPercentage = (ydiff / (w.y / 2)) * 100;
+      // Note that I cut degreeLimit in half when she looks up
+      dy = (((degreeLimit * 0.5) * yPercentage) / 100) * -1;
+    }
+    
+    // ### Down (Rotates neck down between 0 and degreeLimit) ###
+    if (y >= w.y / 2) {
+      ydiff = y - w.y / 2;
+      yPercentage = (ydiff / (w.y / 2)) * 100;
+      dy = (degreeLimit * yPercentage) / 100;
+    }
+    
+    return {
+      x: dx,
+      y: dy 
+    };
+  }
 })();
