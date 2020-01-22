@@ -20,6 +20,7 @@
     loaderAnim = document.getElementById('js-loader');
 
   const MODEL_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy_lightweight.glb';
+  const TEXTURE_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy.jpg'
 
   init();
 
@@ -56,7 +57,6 @@
     camera.position.z = 30 
     camera.position.x = 0;
     camera.position.y = -3;
-    
     
     // ##### Add lights #####
     // 1. Hemisphere light
@@ -101,6 +101,16 @@
     scene.add(floor);
     
     // ##### Model #####
+    // ##### 1. texture #####
+    let stacy_texture = new THREE.TextureLoader().load(TEXTURE_PATH)
+    stacy_texture.flipY=false
+
+    const stacy_mtl = new THREE.MeshPhongMaterial({ // mtl === material
+      map: stacy_texture,
+      color: 0xffffff,
+      skinning: true
+    })
+
     let loader = new THREE.GLTFLoader();
 
     loader.load(
@@ -115,6 +125,7 @@
           if (o.isMesh) {
             o.castShadow = true;
             o.receiveShadow = true;
+            o.material = stacy_mtl
           }
         });
 
