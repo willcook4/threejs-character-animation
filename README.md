@@ -6,7 +6,8 @@ After seeing online (here at codrops)[https://tympanus.net/codrops/2019/10/14/ho
 
 * [x] - Setup and follow the tutorial and get that working in the browser.
 * [x] - Notate the tutorial with extra notes to write out myslef what is happening.
-* [] - Play around with the paramaters to ensure I actually know what is going on.
+* [x] - Play around with the paramaters to ensure I actually know what is going on.
+* [] - Host the non-react-version on Netlify
 * [] - Setup the same animation setup in (React)[https://reactjs.org/]
 
 ### Tech used:
