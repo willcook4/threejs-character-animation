@@ -100,9 +100,10 @@
     floor.position.y = -11;
     scene.add(floor);
 
-    // ##### environment #####
+    // ##### Environment #####
+    // The colored dot behind the model
     let geometry = new THREE.SphereGeometry(8, 32, 32);
-    let material = new THREE.MeshBasicMaterial({ color: 0xf2ce2e }); // 0xf2ce2e 
+    let material = new THREE.MeshBasicMaterial({ color: 0xBC8F8F }); // 0xf2ce2e 
     let sphere = new THREE.Mesh(geometry, material);
     sphere.position.z = -15;
     sphere.position.y = -2.5;
@@ -142,6 +143,7 @@
         model.scale.set(7, 7, 7); // Set the models initial scale to 7x default
         model.position.y = -11; // put the models feet on the ground
         scene.add(model); // add the model to the scene
+        loaderAnim.remove()
       },
       // called while loading model
       function ( xhr ) {

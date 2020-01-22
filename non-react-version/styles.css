@@ -59,7 +59,8 @@ body {
   top: 25px;
   width: 50px;
   height: 50px;
-  background-color: #9bffaf;
+  background-color: #BC8F8F;
+  border-bottom: 2px solid #25252B;
   animation: flip 1s infinite;
 }
 
