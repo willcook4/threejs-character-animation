@@ -19,6 +19,8 @@
     raycaster = new THREE.Raycaster(),  // Used to detect the click on our character
     loaderAnim = document.getElementById('js-loader');
 
+  const MODEL_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy_lightweight.glb';
+
   init();
 
   function init() {
@@ -98,7 +100,40 @@
     floor.position.y = -11;
     scene.add(floor);
     
+    // ##### Model #####
+    let loader = new THREE.GLTFLoader();
+
+    loader.load(
+      // the model to load
+      MODEL_PATH,
+      // called when the resource is loaded
+      function(gltf) {
+        model = gltf.scene;
+        let fileAnimations = gltf.animations;
+
+        model.traverse(o => {
+          if (o.isMesh) {
+            o.castShadow = true;
+            o.receiveShadow = true;
+          }
+        });
+
+        
+        model.scale.set(7, 7, 7); // Set the models initial scale to 7x default
+        model.position.y = -11; // put the models feet on the ground
+        scene.add(model); // add the model to the scene
+      },
+      // called while loading model
+      function ( xhr ) {
+        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+      },
+      // on error
+      function(err) {
+        console.log('ERROR: ', err)
+      }
+    )
   }
+  // END init fn
 
   // Three.js relies on is an update function, which runs every frame
   function update() {
@@ -126,7 +161,7 @@
     if (needResize) {
       renderer.setSize(width, height, false);
     }
-    return needResize;
+    return needResize; // boolean
   }
 
 })();
