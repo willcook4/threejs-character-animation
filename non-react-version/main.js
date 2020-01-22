@@ -99,6 +99,15 @@
     floor.receiveShadow = true;
     floor.position.y = -11;
     scene.add(floor);
+
+    // ##### environment #####
+    let geometry = new THREE.SphereGeometry(8, 32, 32);
+    let material = new THREE.MeshBasicMaterial({ color: 0xf2ce2e }); // 0xf2ce2e 
+    let sphere = new THREE.Mesh(geometry, material);
+    sphere.position.z = -15;
+    sphere.position.y = -2.5;
+    sphere.position.x = -0.25;
+    scene.add(sphere);
     
     // ##### Model #####
     // ##### 1. texture #####
