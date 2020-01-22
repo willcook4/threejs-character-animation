@@ -1,3 +1,18 @@
+# Animated Character using Three.js
+
+After seeing online (here at codrops)[https://tympanus.net/codrops/2019/10/14/how-to-create-an-interactive-3d-character-with-three-js/] I wanted to try to see if I could create the same effect.
+
+### Tasks I set myself:
+
+* [x] - Setup and follow the tutorial and get that working in the browser.
+* [x] - Notate the tutorial with extra notes to write out myslef what is happening.
+* [] - Play around with the paramaters to ensure I actually know what is going on.
+* [] - Setup the same animation setup in (React)[https://reactjs.org/]
+
+<hr>
+From create React App...
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
