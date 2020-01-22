@@ -27,9 +27,14 @@
     loaderAnim = document.getElementById('js-loader');
 
   // const MODEL_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy_lightweight.glb';
-  const MODEL_PATH = './models/stacy_lightweight.glb'
+  // const MODEL_PATH = './models/stacy_lightweight.glb'
+  // const MODEL_PATH = './models/malcom.gltf'
+  // const MODEL_PATH = './models/doug-embedded.gltf'
+  // const MODEL_PATH = './models/draft-eric.gltf'
+    const MODEL_PATH = './models/eric_v4.gltf'
   // const TEXTURE_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy.jpg'
-  const TEXTURE_PATH = './models/stacy.jpg'
+  // const TEXTURE_PATH = './models/stacy.jpg'
+   const TEXTURE_PATH = './models/rp_eric_rigged_001_dif.jpg'
 
   init();
 
@@ -64,7 +69,7 @@
     // positioning the camera to be 30 units back, and 3 units down
     camera.position.z = 30 
     camera.position.x = 0;
-    camera.position.y = -4;
+    camera.position.y = -2;
     
     // ##### Add lights #####
     // 1. Hemisphere light
@@ -111,9 +116,9 @@
     // ##### Environment #####
     // The colored dot behind the model
     let geometry = new THREE.SphereGeometry(8, 32, 32);
-    let material = new THREE.MeshBasicMaterial({ color: 0xBC8F8F }); // 0xf2ce2e 
+    let material = new THREE.MeshBasicMaterial({ color: 0xF7E58D }); // 0xHEX
     let sphere = new THREE.Mesh(geometry, material);
-    sphere.position.z = -15;
+    sphere.position.z = -25;
     sphere.position.y = -2.5;
     sphere.position.x = -0.25;
     scene.add(sphere);
@@ -136,8 +141,10 @@
       MODEL_PATH,
       // called when the resource is loaded
       function(gltf) {
+        // console.log('gltf, ', gltf)
         model = gltf.scene;
         let fileAnimations = gltf.animations;
+        console.log(gltf.scene)
 
         model.traverse(o => {
           // if (o.isBone) {
@@ -155,13 +162,9 @@
           if (o.isBone && o.name === 'mixamorigSpine') { 
             waist = o;
           }
-          // if(o.isBone && o.name === 'mixamorigLeftArm') {
-          //   leftArm = o;
-          // }
         });
-
         
-        model.scale.set(7, 7, 7); // Set the models initial scale to 7x default
+        model.scale.set(0.1, 0.1, 0.1); // Set the models initial scale to 7x default
         model.position.y = -11; // put the models feet on the ground
         scene.add(model); // add the model to the scene
         loaderAnim.remove();
@@ -180,6 +183,7 @@
           return clip;
          }
         );
+        console.log('num of possibleAnimations: ', possibleAnims.length)
 
         let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'idle');
         // remove the neck and the waist from inside the animation,
@@ -190,8 +194,6 @@
         // neck
         idleAnim.tracks.splice(9, 3);
         // console.log(idleAnim.tracks)
-        // arm test
-        // idleAnim.tracks.splice(15, 3);
         
         idle = mixer.clipAction(idleAnim);
         idle.play();
@@ -245,7 +247,6 @@
   window.addEventListener('click', e => raycast(e));
   window.addEventListener('touchend', e => raycast(e, true));
 
-
   /**
    * making a link from the mouse to the model (raycasting)
    * if they overlap then play an animation (playOnClick)
@@ -266,15 +267,15 @@
     let intersects = raycaster.intersectObjects(scene.children, true);
 
     if (intersects[0]) {
-      let object = intersects[0].object;
-
-      if (object.name === 'stacy') {
-
+      // console.log('intersects: ', intersects)
+      // let object = intersects[0].object;
+      // if (object.name === 'eric') {
+        // NOTE, eric v4 does not name the correct naming, missing object.name === 'eric'
         if (!currentlyAnimating) {
           currentlyAnimating = true;
           playOnClick();
         }
-      }
+      // }
     }
   }
 

@@ -59,7 +59,7 @@ body {
   top: 25px;
   width: 50px;
   height: 50px;
-  background-color: #BC8F8F;
+  background-color: #F7E58D;
   border-bottom: 2px solid #25252B;
   animation: flip 1s infinite;
 }
@@ -70,6 +70,15 @@ body {
   font-family: sans-serif;
   text-align: center;
   color: slategrey;
+}
+
+.sub-title {
+  position: relative;
+  z-index: 10;
+  font-family: sans-serif;
+  text-align: center;
+  color: slategrey;
+  margin-top: -16px;
 }
 
 @keyframes flip {
