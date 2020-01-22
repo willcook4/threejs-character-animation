@@ -8,12 +8,20 @@ After seeing online (here at codrops)[https://tympanus.net/codrops/2019/10/14/ho
 * [x] - Notate the tutorial with extra notes to write out myslef what is happening.
 * [x] - Play around with the paramaters to ensure I actually know what is going on.
 * [x] - Host the non-react-version on Netlify (see it here)[https://tender-chandrasekhar-754f74.netlify.com/]
+* [x] - Swap the model and the animations (Stacy -> Eric)
 * [] - Setup the same animation setup in (React)[https://reactjs.org/]
 * [] - Try a new model in the react animation setup 
+
+## Result
+![non React version](eric_non-react.png)
+(Link to non-react demo)[https://tender-chandrasekhar-754f74.netlify.com/]
 
 ### Tech used:
 * Three.js
 * (Adobe Mixamo)[https://www.mixamo.com/]
+* Blender
+* VSCode
+* Chrome and Firefox
 
 <hr>
 From create React App...
