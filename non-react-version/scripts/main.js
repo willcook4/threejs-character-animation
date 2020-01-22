@@ -34,7 +34,6 @@
   init();
 
   function init() {
-    
     const canvas = document.querySelector('#c');
     // Note that Three.js doesn’t reference colors in a string like so “#f1f1f1”,
     // but rather a hexadecimal integer like 0xf1f1f1
@@ -65,7 +64,7 @@
     // positioning the camera to be 30 units back, and 3 units down
     camera.position.z = 30 
     camera.position.x = 0;
-    camera.position.y = -3;
+    camera.position.y = -4;
     
     // ##### Add lights #####
     // 1. Hemisphere light

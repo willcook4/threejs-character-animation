@@ -64,6 +64,14 @@ body {
   animation: flip 1s infinite;
 }
 
+.title {
+  position: relative;
+  z-index: 10;
+  font-family: sans-serif;
+  text-align: center;
+  color: slategrey;
+}
+
 @keyframes flip {
   0% {
     transform: rotate(0);
