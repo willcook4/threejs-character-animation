@@ -8,7 +8,7 @@ After seeing online (here at codrops)[https://tympanus.net/codrops/2019/10/14/ho
 * [x] - Notate the tutorial with extra notes to write out myslef what is happening.
 * [x] - Play around with the paramaters to ensure I actually know what is going on.
 * [x] - Host the non-react-version on Netlify (see it here)[https://tender-chandrasekhar-754f74.netlify.com/]
-* [x] - Swap the model and the animations (Stacy -> Eric)
+* [x] - Swap the model and the animations (Stacy(source:)[https://www.turbosquid.com/3d-models/3d-stacy-resolution-games-model/535459] -> Eric(source:)[https://www.turbosquid.com/3d-models/photorealistic-human-rig-3d-1422553])
 * [] - Setup the same animation setup in (React)[https://reactjs.org/]
 * [] - Try a new model in the react animation setup 
 
