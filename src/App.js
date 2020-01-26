@@ -27,6 +27,7 @@ class App extends Component {
     super(props);
     this.mountPointRef = React.createRef()
     this.clock = new THREE.Clock()
+    this.raycaster = new THREE.Raycaster()
 
     this.state = {
       loading: true,
@@ -192,7 +193,7 @@ class App extends Component {
         
         model.scale.set(0.015, 0.015, 0.015) // Set the models initial scale to 7x default
         model.position.y = -1.2 // put the models feet on the ground
-        console.log('modelll: ', model)
+        
         this.scene.add(model) // add the model to the scene
         // console.log('aa', aa)
         this.setState({ loading: false }, () => { console.log('finished loading')})
@@ -252,7 +253,6 @@ class App extends Component {
    * */ 
   startAnimationLoop = () => {
     if (this.mixer) {
-      // console.log('HERE', this.clock.getDelta())
       this.mixer.update(this.clock.getDelta()); // see note at the definition of clock
     }
 
@@ -263,12 +263,143 @@ class App extends Component {
     this.requestID = window.requestAnimationFrame(this.startAnimationLoop);
   };
 
+  raycast = (e, touch = false) => {
+    console.log('raycast', e, touch)
+    let mouse = {};
+    if (touch) {
+      mouse.x = 2 * (e.changedTouches[0].clientX / window.innerWidth) - 1;
+      mouse.y = 1 - 2 * (e.changedTouches[0].clientY / window.innerHeight);
+    } else {
+      mouse.x = 2 * (e.clientX / window.innerWidth) - 1;
+      mouse.y = 1 - 2 * (e.clientY / window.innerHeight);
+    }
+    // update the picking ray with the camera and mouse position
+    this.raycaster.setFromCamera(mouse, this.camera);
+
+    // calculate objects intersecting the picking ray
+    let intersects = this.raycaster.intersectObjects(this.scene.children, true);
+
+    if (intersects[0]) { 
+      if (!this.state.currentlyAnimating) {
+        this.setState({
+          currentlyAnimating: true
+        }, () => {
+          this.playOnClick()
+        })
+      }
+    }
+  }
+
+  playOnClick() {
+    let anim = Math.floor(Math.random() * this.possibleAnims.length) + 0;
+    this.playModifierAnimation(this.idle, 0.25, this.possibleAnims[anim], 0.25);
+  }
+
+  playModifierAnimation(from, fSpeed, to, tSpeed) {
+    // to animation is the animation that’s about to play next
+    to.setLoop(THREE.LoopOnce); // play once
+    to.reset();
+    to.play();
+    from.crossFadeTo(to, fSpeed, true); // fade from (idle) to the new animation using our first speed (fSpeed, aka from speed)
+    
+    setTimeout(() => { // timeout function
+      from.enabled = true; // we turn the from animation (idle) back to true, 
+      to.crossFadeTo(from, tSpeed, true); // we cross fade back to idle,
+      this.setState({currentlyAnimating: false}) // then we toggle currentlyAnimating back to false (allowing another click on model)
+    }, to._clip.duration * 1000 - ((tSpeed + fSpeed) * 1000)); // The time of the setTimeout is calculated by combining our animations length (* 1000 as this is in seconds instead of milliseconds), and removing the speed it took to fade to and from that animation (also set in seconds, so * 1000 again)
+  }
+
+  mouseMove(e) {
+    var mousecoords = { x: e.clientX, y: e.clientY }
+    // getMousePos(e);
+    // console.log('mousecoords: ', mousecoords)
+    if (this.neck && this.waist) {
+      this.moveJoint(mousecoords, this.neck, 50); // move neck with 50deg limit
+      this.moveJoint(mousecoords, this.waist, 30); // move waist with 30deg limit
+    }
+  }
+
+  moveJoint(mouse, joint, degreeLimit) {
+    let degrees = this.getMouseDegrees(mouse.x, mouse.y, degreeLimit);
+    joint.rotation.y = THREE.Math.degToRad(degrees.x);
+    joint.rotation.x = THREE.Math.degToRad(degrees.y);
+  }
+
+  getMouseDegrees(x, y, degreeLimit) {
+    let dx = 0,
+        dy = 0,
+        xdiff,
+        xPercentage,
+        ydiff,
+        yPercentage;
+  
+    let w = {
+      x: window.innerWidth,
+      y: window.innerHeight
+    };
+  
+    // ### Left (Rotates neck left between 0 and -degreeLimit) ###
+    // 1. If cursor is in the left half of screen
+    if (x <= w.x / 2) {
+      // 2. Get the difference between middle of screen and cursor position
+      xdiff = w.x / 2 - x;  
+      // 3. Find the percentage of that difference (percentage toward edge of screen)
+      xPercentage = (xdiff / (w.x / 2)) * 100;
+      // 4. Convert that to a percentage of the maximum rotation we allow for the neck
+      dx = ((degreeLimit * xPercentage) / 100) * -1;
+    }
+    
+    // ### Right (Rotates neck right between 0 and degreeLimit) ###
+    if (x >= w.x / 2) {
+      xdiff = x - w.x / 2;
+      xPercentage = (xdiff / (w.x / 2)) * 100;
+      dx = (degreeLimit * xPercentage) / 100;
+    }
+    
+    // ### Up (Rotates neck up between 0 and -degreeLimit) ###
+    if (y <= w.y / 2) {
+      ydiff = w.y / 2 - y;
+      yPercentage = (ydiff / (w.y / 2)) * 100;
+      // Note that I cut degreeLimit in half when she looks up
+      dy = (((degreeLimit * 0.5) * yPercentage) / 100) * -1;
+    }
+    
+    // ### Down (Rotates neck down between 0 and degreeLimit) ###
+    if (y >= w.y / 2) {
+      ydiff = y - w.y / 2;
+      yPercentage = (ydiff / (w.y / 2)) * 100;
+      dy = (degreeLimit * yPercentage) / 100;
+    }
+    
+    return {
+      x: dx,
+      y: dy 
+    };
+  }
+
   render() {
     return (
       <>
         {this.state.loading ? (<StyledLoader />) : null}
         <StyledText>React + Three.js Experiment</StyledText>
-        <AnimationWrapper ref={this.mountPointRef} />
+        <AnimationWrapper
+          ref={this.mountPointRef}
+          onClick={(e) => {
+            if(!this.state.currentlyAnimating) {
+              this.raycast(e)
+            } else {
+              console.log('ignored')
+            }
+          }} 
+          onTouchEnd={(e) => {
+            if(!this.state.currentlyAnimating) {
+              this.raycast(e, true)
+            } else {
+              console.log('ignored')
+            }
+          }}
+          onMouseMove={(e) => this.mouseMove(e)}
+          />
         <StyledText>Made by Will Cook</StyledText>
       </>
     );
