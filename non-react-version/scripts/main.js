@@ -200,7 +200,11 @@
       },
       // called while loading model
       function ( xhr ) {
-        console.log( `Model is ${( xhr.loaded / xhr.total * 100 )}% loaded`);
+        if(xhr && xhr.lengthComputable) {
+          console.log( `Model is ${( xhr.loaded / xhr.total * 100 )}% loaded`)
+        } else {
+          console.log('loading model...')
+        }
       },
       // on error
       function(err) {
