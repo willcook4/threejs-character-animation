@@ -81,12 +81,13 @@
     scene.add(hemiLight);
     
     // 2. Directional light
+    // let d = 50;
     let d = 8.25; // d can be adjusted until the shadows aren’t clipping in strange places
     //                 THREE.DirectionalLight(color, intensity)
     let dirLight = new THREE.DirectionalLight(0xffffff, 0.54);
-    dirLight.position.set(-8, 12, 8);
+    dirLight.position.set(0, 4, 0);
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    dirLight.shadow.mapSize = new THREE.Vector2(2048, 2048);
     dirLight.shadow.camera.near = 0.1;
     dirLight.shadow.camera.far = 1500;
     dirLight.shadow.camera.left = d * -1;
@@ -100,7 +101,7 @@
     // ##### Floor #####
     //                            PlaneGeometry(width, height, widthSegments, heightSegments)
     // 5000 units is huge to ensure a seamless background
-    let floorGeometry = new THREE.PlaneGeometry(5000, 5000, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(10000, 10000, 1, 1);
     // combine geometry and materials into a mesh, and this mesh is a 3D object in our scene
     let floorMaterial = new THREE.MeshPhongMaterial({
       color: 0xeeeeee, //  0xeeeeee which is slightly darker than the background, because the lights shine on this floor, but our lights don’t affect the background
