@@ -109,6 +109,7 @@ class App extends Component {
     let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
     // light position 50 units above center
     hemiLight.position.set(0, 50, 0);
+    hemiLight.name='hemispehre-light'
     // Add light to scene
     this.scene.add(hemiLight);
     
@@ -116,7 +117,8 @@ class App extends Component {
     let d = 8.25; // d can be adjusted until the shadows aren’t clipping in strange places
     //                 THREE.DirectionalLight(color, intensity)
     let dirLight = new THREE.DirectionalLight(0xffffff, 0.54);
-    dirLight.position.set(-8, 12, 8);
+    dirLight.name='directional-light'
+    dirLight.position.set(10, 4, 0);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
     dirLight.shadow.camera.near = 0.1;
@@ -126,29 +128,33 @@ class App extends Component {
     dirLight.shadow.camera.top = d;
     dirLight.shadow.camera.bottom = d * -1;
     // Add the directional Light to scene
-    this.scene.add(dirLight);
+    this.scene.add(dirLight)
 
     // ##### Floor #####
     //                            PlaneGeometry(width, height, widthSegments, heightSegments)
     // 5000 units is huge to ensure a seamless background
-    let floorGeometry = new THREE.PlaneGeometry(10000, 10000, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(5000, 5000, 1, 1);
     // combine geometry and materials into a mesh, and this mesh is a 3D object in our scene
     let floorMaterial = new THREE.MeshPhongMaterial({
-      color: 0xeeeeee, //  0xeeeeee which is slightly darker than the background, because the lights shine on this floor, but our lights don’t affect the background
-      shininess: 0,
+      color: 0xff0000, //  0xeeeeee which is slightly darker than the background, because the lights shine on this floor, but our lights don’t affect the background
+      // shininess: 0, // TODO
     });
 
     let floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -0.5 * Math.PI;
     floor.receiveShadow = true;
-    floor.position.y = -11;
+    floor.position.y = 0;
+    floor.name = 'floor'
+    console.log('floor', floor)
     this.scene.add(floor);
+    console.log('H', this.scene)
 
     // ##### Environment #####
     // The colored dot behind the model
     let geometry = new THREE.SphereGeometry(5, 32, 32);
     let material = new THREE.MeshBasicMaterial({ color: 0xff7f50 }); // 0xHEX
-    let sphere = new THREE.Mesh(geometry, material);
+    let sphere = new THREE.Mesh(geometry, material)
+    sphere.name = 'color-dot'
     sphere.position.z = -25;
     sphere.position.y = 2.5;
     sphere.position.x = 0.25;
@@ -169,7 +175,7 @@ class App extends Component {
     loader.load(
       MODEL_PATH, // the model to load
       (gltf) => { // called when the resource is loaded
-        console.log('gltf, ', gltf)
+        // console.log('gltf, ', gltf)
         let model = gltf.scene;
         let fileAnimations = gltf.animations;
 
@@ -191,7 +197,7 @@ class App extends Component {
           }
         });
         
-        model.scale.set(0.015, 0.015, 0.015) // Set the models initial scale to 7x default
+        model.scale.set(0.015, 0.015, 0.015) // Set the models initial scale to fit
         model.position.y = -1.2 // put the models feet on the ground
         
         this.scene.add(model) // add the model to the scene
@@ -261,10 +267,9 @@ class App extends Component {
     // an animation and requests that the browser call a specified function
     // to update an animation before the next repaint
     this.requestID = window.requestAnimationFrame(this.startAnimationLoop);
-  };
+  }
 
   raycast = (e, touch = false) => {
-    console.log('raycast', e, touch)
     let mouse = {};
     if (touch) {
       mouse.x = 2 * (e.changedTouches[0].clientX / window.innerWidth) - 1;
@@ -310,9 +315,7 @@ class App extends Component {
   }
 
   mouseMove(e) {
-    var mousecoords = { x: e.clientX, y: e.clientY }
-    // getMousePos(e);
-    // console.log('mousecoords: ', mousecoords)
+    let mousecoords = { x: e.clientX, y: e.clientY }
     if (this.neck && this.waist) {
       this.moveJoint(mousecoords, this.neck, 50); // move neck with 50deg limit
       this.moveJoint(mousecoords, this.waist, 30); // move waist with 30deg limit
