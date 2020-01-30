@@ -16,6 +16,8 @@ After seeing online (here at codrops)[https://tympanus.net/codrops/2019/10/14/ho
 ![non React version](eric_non-react.png)
 (Link to non-react demo)[https://tender-chandrasekhar-754f74.netlify.com/]
 
+(Final React Version)[https://condescending-neumann-ecb005.netlify.com]
+
 ### Tech used:
 * Three.js
 * (Adobe Mixamo)[https://www.mixamo.com/]
