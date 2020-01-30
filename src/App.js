@@ -5,6 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import styled from 'styled-components'
 
 import './App.css'
+import { StyledLink } from './StyledLink'
 import { StyledText } from './StyledText'
 import { StyledLoader } from './Loader'
 
@@ -20,6 +21,26 @@ const MODEL_PATH = './eric_v4.gltf'
 const AnimationWrapper = styled.div`
   /* scene size is controlled by setting container dimensions */
   height: 800px;
+
+  @media (min-width: 1px) and (max-width: 321px) and (orientation: portrait) {
+    height: 380px;
+    margin-top: 6em;
+  }
+
+  @media (min-width: 1px) and (max-width: 568px) and (orientation: landscape) {
+    :before {
+      content: 'Please rotate your screen to portrait mode';
+      position: fixed;
+      background-color: ${props => '#' + (props.primaryColor + 0x00000).toString(16).toUpperCase()};
+      color: white;
+      width: 100%;
+      height: 100%;
+      padding: 2em;
+      display: inline-block;
+      z-index: 10;
+      font-weight: bold;
+    }
+  }
 `
 
 class App extends Component {
@@ -33,6 +54,7 @@ class App extends Component {
       loading: true,
       currentlyAnimating: false,
       backgroundColor: 0xf1f1f1, // color as a hexadecimal int for THREE
+      primaryColor: 0x9606ae // #9606ae
     }
   }
 
@@ -42,27 +64,25 @@ class App extends Component {
     this.startAnimationLoop();
 
     // Listen for window resize changes
-    window.addEventListener('resize', this.handleWindowResize);
+    window.addEventListener('resize', this.handleWindowResize)
+    // TODO check if there is a need for a 'focus' window event handler 
+    // to stop all animations if the tab is not in focus
   }
 
-  // componentWillUnmount() {
-  //   // Stop listening for window resize changes
-  //   window.removeEventListener('resize', this.handleWindowResize);
+  componentWillUnmount() {
+    // Stop listening for window resize changes
+    window.removeEventListener('resize', this.handleWindowResize)
 
-  //   window.cancelAnimationFrame(this.requestID);
-  //   // remove interactivity 
-  //   this.controls.dispose();
-// }
+    window.cancelAnimationFrame(this.requestID)
+}
 
   handleWindowResize = () => {
-    console.log('window resize...')
-    const width = this.mountPointRef.current.clientWidth;
-    const height = this.mountPointRef.current.clientHeight;
-
-    this.renderer.setSize( width, height );
+    const width = this.mountPointRef.current.clientWidth
+    const height = this.mountPointRef.current.clientHeight
+    this.renderer.setSize( width, height )
     // update the camera to match the proportions of the viewport
-    this.camera.aspect = width / height;
-    this.camera.updateProjectionMatrix();
+    this.camera.aspect = width / height
+    this.camera.updateProjectionMatrix()
   };
 
   // Setup the scene, camera and renderer
@@ -74,11 +94,11 @@ class App extends Component {
     this.scene = new THREE.Scene()
     this.scene.background = new THREE.Color(this.state.backgroundColor);
     // if your floor and background color are different, it can come in handy to blur those together with fog
-    this.scene.fog = new THREE.Fog(this.state.backgroundColor, 60, 100);
+    this.scene.fog = new THREE.Fog(this.state.backgroundColor, 1, 100);
 
 
     // ##### Init the renderer #####
-    this.renderer = new THREE.WebGLRenderer()
+    this.renderer = new THREE.WebGLRenderer({ antialias: true })
       // {
       // canvas, // canvas reference
       // antialias: true // enabling antialiasing
@@ -92,13 +112,15 @@ class App extends Component {
 
     // Setup a camera
     this.camera = new THREE.PerspectiveCamera(
-      50, // fov (field of view)
+      40, // fov (field of view)
       width / height, // aspect ratio
       0.1, // near clipping plane (anything closer than this wont be rendered)
-      1000 // far clipping plane (anything further away than this wont be rendered)
+      2000 // far clipping plane (anything further away than this wont be rendered) // default 2000
     );
+    
     // set a distance from the cube( cube is located at z = 0)
-    this.camera.position.z = 5;
+    this.camera.position.z = 2;
+    this.camera.position.y = 0.1;
   };
 
   // adding any custom Three.js objects into a scene
@@ -106,59 +128,56 @@ class App extends Component {
     // ##### Add lights #####
     // 1. Hemisphere light
     // white(0xffffff) light, and its intensity is at 0.61. (white sky, white ground, intensity)
-    let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
-    // light position 50 units above center
-    hemiLight.position.set(0, 50, 0);
+    let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.41);
+    hemiLight.position.set(0, 2, 0);
     hemiLight.name='hemispehre-light'
     // Add light to scene
     this.scene.add(hemiLight);
     
     // 2. Directional light
-    let d = 8.25; // d can be adjusted until the shadows aren’t clipping in strange places
+    let d = 10 // d can be adjusted until the shadows aren’t clipping in strange places
     //                 THREE.DirectionalLight(color, intensity)
-    let dirLight = new THREE.DirectionalLight(0xffffff, 0.54);
+    let dirLight = new THREE.DirectionalLight(0xffffff, 0.8)
     dirLight.name='directional-light'
-    dirLight.position.set(10, 4, 0);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
-    dirLight.shadow.camera.near = 0.1;
-    dirLight.shadow.camera.far = 1500;
-    dirLight.shadow.camera.left = d * -1;
-    dirLight.shadow.camera.right = d;
-    dirLight.shadow.camera.top = d;
-    dirLight.shadow.camera.bottom = d * -1;
+    dirLight.position.set(1, 5, 4)
+    dirLight.castShadow = true
+    dirLight.shadow.mapSize = new THREE.Vector2(2048, 2048)
+    dirLight.shadow.camera.near = 0.1
+    dirLight.shadow.camera.far = 1500
+    dirLight.shadow.camera.left = d * -1
+    dirLight.shadow.camera.right = d
+    dirLight.shadow.camera.top = d
+    dirLight.shadow.camera.bottom = d * -1
     // Add the directional Light to scene
     this.scene.add(dirLight)
 
     // ##### Floor #####
     //                            PlaneGeometry(width, height, widthSegments, heightSegments)
     // 5000 units is huge to ensure a seamless background
-    let floorGeometry = new THREE.PlaneGeometry(5000, 5000, 1, 1);
+    let floorGeometry = new THREE.PlaneGeometry(2000, 2000, 1, 1);
     // combine geometry and materials into a mesh, and this mesh is a 3D object in our scene
     let floorMaterial = new THREE.MeshPhongMaterial({
-      color: 0xff0000, //  0xeeeeee which is slightly darker than the background, because the lights shine on this floor, but our lights don’t affect the background
-      // shininess: 0, // TODO
-    });
+      color: this.state.backgroundColor, //  0xeeeeee which is slightly darker than the background, because the lights shine on this floor, but our lights don’t affect the background
+      shininess: 0, // TODO
+    })
 
     let floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -0.5 * Math.PI;
     floor.receiveShadow = true;
-    floor.position.y = 0;
+    floor.position.y = -0.4
     floor.name = 'floor'
-    console.log('floor', floor)
-    this.scene.add(floor);
-    console.log('H', this.scene)
+    this.scene.add(floor)
 
     // ##### Environment #####
     // The colored dot behind the model
-    let geometry = new THREE.SphereGeometry(5, 32, 32);
-    let material = new THREE.MeshBasicMaterial({ color: 0xff7f50 }); // 0xHEX
+    let geometry = new THREE.SphereGeometry(3, 4, 4)
+    let material = new THREE.MeshBasicMaterial({ color: 0xe0a6ea }) // 0xHEX 0xff7f50
     let sphere = new THREE.Mesh(geometry, material)
     sphere.name = 'color-dot'
-    sphere.position.z = -25;
-    sphere.position.y = 2.5;
-    sphere.position.x = 0.25;
-    this.scene.add(sphere);
+    sphere.position.z = -25
+    sphere.position.y = 5.7
+    sphere.position.x = -7
+    this.scene.add(sphere)
 
     // ##### Model #####
     // ##### 1. texture #####
@@ -197,11 +216,10 @@ class App extends Component {
           }
         });
         
-        model.scale.set(0.015, 0.015, 0.015) // Set the models initial scale to fit
-        model.position.y = -1.2 // put the models feet on the ground
+        model.scale.set(0.005, 0.005, 0.005) // Set the models initial scale to fit
+        model.position.y = -0.4 // put the models feet on the ground
         
         this.scene.add(model) // add the model to the scene
-        // console.log('aa', aa)
         this.setState({ loading: false }, () => { console.log('finished loading')})
 
         // ##### create a new AnimationMixer ##### 
@@ -383,9 +401,14 @@ class App extends Component {
   render() {
     return (
       <>
-        {this.state.loading ? (<StyledLoader />) : null}
-        <StyledText>React + Three.js Experiment</StyledText>
+        {this.state.loading ? (<StyledLoader primaryColor={this.state.primaryColor} />) : null}
+        <StyledText
+          title='Dance Eric, Dance!'
+          subTitle='React + Three.js Experiment'
+          textColor={this.state.primaryColor}
+        />
         <AnimationWrapper
+          primaryColor={this.state.primaryColor}
           ref={this.mountPointRef}
           onClick={(e) => {
             if(!this.state.currentlyAnimating) {
@@ -403,7 +426,12 @@ class App extends Component {
           }}
           onMouseMove={(e) => this.mouseMove(e)}
           />
-        <StyledText>Made by Will Cook</StyledText>
+        <StyledLink
+          textColor={this.state.primaryColor}
+          href='https://github.com/willcook4/threejs-character-animation'
+          rel="noopener noreferrer"
+          target='__blank'
+          >Made by Will Cook</StyledLink>
       </>
     );
   }

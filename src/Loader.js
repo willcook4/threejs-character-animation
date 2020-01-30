@@ -1,11 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 
-
-/* <div class="loading">
-  <div class="loader"></div>
-</div>  */
-
 const Loading = styled('div')`
   position: fixed;
   z-index: 50;
@@ -26,11 +21,11 @@ const Loader = styled('div')`
   &:before {
     content: "";
     position: absolute;
-    left: 25px;
+    left: 15px;
     top: 25px;
     width: 75px;
     height: 75px;
-    background-color: coral;
+    background-color: ${props => props.primaryColor};
     border-bottom: 2px solid #25252B;
     animation: flip 1s infinite;
   }
@@ -38,7 +33,7 @@ const Loader = styled('div')`
   &:after {
     content: "Finding Eric...";
     position: absolute;
-    left: 16px;
+    left: 8px;
     top: 125px;
     width: fit-content;
   }
@@ -63,10 +58,14 @@ const Loader = styled('div')`
   }
 `
 
-export const StyledLoader = () => (
+export const StyledLoader = (props) => {
+  const primaryColor = ('#' + (props.primaryColor + 0x00000).toString(16).toUpperCase())
+  
+  return (
   <>
     <Loading>
-      <Loader />
+      <Loader primaryColor={primaryColor} />
     </Loading>
   </>
-)
+  )
+}
