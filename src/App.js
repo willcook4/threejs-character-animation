@@ -299,17 +299,12 @@ class App extends Component {
     // update the picking ray with the camera and mouse position
     this.raycaster.setFromCamera(mouse, this.camera);
 
-    // calculate objects intersecting the picking ray
-    let intersects = this.raycaster.intersectObjects(this.scene.children, true);
-
-    if (intersects[0]) { 
-      if (!this.state.currentlyAnimating) {
-        this.setState({
-          currentlyAnimating: true
-        }, () => {
-          this.playOnClick()
-        })
-      }
+    if (!this.state.currentlyAnimating) {
+      this.setState({
+        currentlyAnimating: true
+      }, () => {
+        this.playOnClick()
+      })
     }
   }
 
@@ -412,6 +407,7 @@ class App extends Component {
           ref={this.mountPointRef}
           onClick={(e) => {
             if(!this.state.currentlyAnimating) {
+              console.log('clicked')
               this.raycast(e)
             } else {
               console.log('ignored')
@@ -420,6 +416,7 @@ class App extends Component {
           onTouchEnd={(e) => {
             if(!this.state.currentlyAnimating) {
               this.raycast(e, true)
+              console.log('touched')
             } else {
               console.log('ignored')
             }
