@@ -142,7 +142,7 @@
       MODEL_PATH,
       // called when the resource is loaded
       function(gltf) {
-        console.log('gltf, ', gltf)
+        // console.log('gltf, ', gltf)
         model = gltf.scene;
         let fileAnimations = gltf.animations;
         // console.log(gltf.scene)
